@@ -44,28 +44,31 @@ ROOT.gStyle.cd()
 
 intLumi = 35.9
 
+#f1 = ROOT.TFile.Open("../h_ggh_ichep16.root")
+#f2 = ROOT.TFile.Open("../h_zee_ichep16.root")
 f1 = ROOT.TFile.Open("../h_ggh.root")
 f2 = ROOT.TFile.Open("../h_zee.root")
+
 #f2 = ROOT.TFile.Open("../h_ggh90.root")
 
 outdir = sys.argv[1]
 
 vars = {
     
-        "massRatio_EBEB" : "m_{trasf}/m_{nominal}",
-        "massRatio_EBEB_highR9" : "m_{trasf}/m_{nominal}",
-        "massRatio_EBEB_highR9_inner" : "m_{trasf}/m_{nominal}",
-        "massRatio_EBEB_highR9_outer" : "m_{trasf}/m_{nominal}",
-        "massRatio_EBEB_lowR9" : "m_{trasf}/m_{nominal}",
-        "massRatio_EBEB_lowR9_inner" : "m_{trasf}/m_{nominal}",
-        "massRatio_EBEB_lowR9_outer" : "m_{trasf}/m_{nominal}",
-        "massRatio_EEEE" : "m_{trasf}/m_{nominal}",
-        "massRatio_EEEE_highR9" : "m_{trasf}/m_{nominal}",
-        "massRatio_EEEE_highR9_inner" : "m_{trasf}/m_{nominal}",
-        "massRatio_EEEE_highR9_outer" : "m_{trasf}/m_{nominal}",
-        "massRatio_EEEE_lowR9" : "m_{trasf}/m_{nominal}",
-        "massRatio_EEEE_lowR9_inner" : "m_{trasf}/m_{nominal}",
-        "massRatio_EEEE_lowR9_outer" : "m_{trasf}/m_{nominal}"
+        "massRatio_EBEB" : "m_{transf}/m_{nominal}",
+        "massRatio_EBEB_highR9" : "m_{transf}/m_{nominal}",
+        "massRatio_EBEB_highR9_inner" : "m_{transf}/m_{nominal}",
+        "massRatio_EBEB_highR9_outer" : "m_{transf}/m_{nominal}",
+        "massRatio_EBEB_lowR9" : "m_{transf}/m_{nominal}",
+        "massRatio_EBEB_lowR9_inner" : "m_{transf}/m_{nominal}",
+        "massRatio_EBEB_lowR9_outer" : "m_{transf}/m_{nominal}",
+        "massRatio_EEEE" : "m_{transf}/m_{nominal}",
+        "massRatio_EEEE_highR9" : "m_{transf}/m_{nominal}",
+        "massRatio_EEEE_highR9_inner" : "m_{transf}/m_{nominal}",
+        "massRatio_EEEE_highR9_outer" : "m_{transf}/m_{nominal}",
+        "massRatio_EEEE_lowR9" : "m_{transf}/m_{nominal}",
+        "massRatio_EEEE_lowR9_inner" : "m_{transf}/m_{nominal}",
+        "massRatio_EEEE_lowR9_outer" : "m_{transf}/m_{nominal}"
 }
 
 
@@ -98,16 +101,22 @@ for ivar, var in enumerate(vars):
     # data histogram attributes
     h2.SetLineColor(ROOT.kRed)
 
+    k = 2.
+   
     #get mean from gaus fit
-    minx = h1.GetMean() - 2.*h1.GetRMS()
-    maxx = h1.GetMean() + 2.*h1.GetRMS()    
+    #mean = h1.GetMean()
+    mean = h1.GetBinCenter(h1.GetMaximumBin()) 
+    minx = mean - k*h1.GetRMS()
+    maxx = mean + k*h1.GetRMS()    
     fit1 = ROOT.TF1('fit1%s'%var,'gaus')
     fit1.SetRange(minx,maxx)
     fit1.SetLineColor(ROOT.kAzure+1)
     h1.Fit('fit1%s'%var,'QSR+')
 
-    minx = h2.GetMean() - 2.*h2.GetRMS()
-    maxx = h2.GetMean() + 2.*h2.GetRMS()
+    #mean = h2.GetMean()
+    mean = h2.GetBinCenter(h2.GetMaximumBin()) 
+    minx = mean - k*h2.GetRMS()
+    maxx = mean + k*h2.GetRMS()
     fit2 = ROOT.TF1('fit2%s'%var,'gaus')
     fit2.SetRange(minx,maxx)
     fit2.SetLineColor(ROOT.kRed+1)
@@ -124,8 +133,8 @@ for ivar, var in enumerate(vars):
     print '%s %.4f %.4f %.4f +/-  %.4f'%(  var.replace('massRatio_',''), scale_pho, scale_ele, scaleDiff, scaleDiffError )
     print '%s %.4f %.4f %.4f'%(  var.replace('massRatio_',''), h1.GetMean(), h2.GetMean(), ( h1.GetMean() - h2.GetMean()  )  )
 
-    #tl = ROOT.TLatex( 0.15, 0.73,'#gamma/e scale diff. = %.2f +/- %.2f'%( scaleDiff*100, scaleDiffError*100)+'%' )
-    tl = ROOT.TLatex( 0.15, 0.73,'#gamma/e scale diff. = %.2f'%( scaleDiff*100)+'%' )
+    tl = ROOT.TLatex( 0.15, 0.73,'#gamma/e scale diff. = %.2f +/- %.2f'%( scaleDiff*100, scaleDiffError*100)+'%' )
+    #tl = ROOT.TLatex( 0.15, 0.73,'#gamma/e scale diff. = %.2f'%( scaleDiff*100)+'%' )
     tl.SetNDC()
     tl.SetTextSize(0.03)
 

@@ -46,6 +46,8 @@ intLumi = 35.9
 
 f1 = ROOT.TFile.Open("../h_ggh.root")
 f2 = ROOT.TFile.Open("../h_zee.root")
+#f1 = ROOT.TFile.Open("../h_ggh_ichep16.root")
+#f2 = ROOT.TFile.Open("../h_zee_ichep16.root")
 
 outdir = sys.argv[1]
 

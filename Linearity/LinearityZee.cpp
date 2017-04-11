@@ -50,9 +50,10 @@ int main(int argc, char** argv)
 
   bool scaleDataErrors = true;
 
-  float minEt1   = 35.;
-  float minEt2   = 25.;
+  float minEt1   = 40.;
+  float minEt2   = 30.;
   float minMass = 70.; 
+  float maxMass = 110.; 
   float maxDphi = 2.5;
   float MZ = 91.188;
   float intLumi = 35.9;
@@ -88,11 +89,9 @@ int main(int argc, char** argv)
   cout << "Analyzing MC : " << argv[2] <<endl;
 
   TChain* treeMC = new TChain("diphotonDumper/trees/tree_13TeV_All");
-  //TChain* treeMC = new TChain("DYToEE_13TeV_UntaggedTag");
   treeMC->Add(fileMC.c_str());
 
   TChain* treeDA = new TChain("diphotonDumper/trees/tree_13TeV_All");
-  //TChain* treeDA = new TChain("tagsDumper/trees/Data_13TeV_UntaggedTag");
   treeDA->Add(fileDA.c_str());
 
   
@@ -121,12 +120,6 @@ int main(int argc, char** argv)
   Float_t         ele2_phi;
   Float_t         ele2_full5x5_r9;
   Int_t           nvtx;
-  //Bool_t          HLT_Ele35_WPLoose_Gsf_v1;
-  //Bool_t          HLT_Ele35_WPLoose_Gsf_v2;
-  //Bool_t          HLT_Ele35_WPLoose_Gsf_v3;
-  //Bool_t          HLT_Ele35_WPLoose_Gsf_v4;
-  //Bool_t          HLT_Ele35_WPLoose_Gsf_v5;
-
   Bool_t          HLT_Ele27_WPTight_Gsf_v1;
   Bool_t          HLT_Ele27_WPTight_Gsf_v2;
   Bool_t          HLT_Ele27_WPTight_Gsf_v3;
@@ -199,11 +192,6 @@ int main(int argc, char** argv)
   treeDA->SetBranchAddress("ele2_eta", &ele2_eta);
   treeDA->SetBranchAddress("ele2_phi", &ele2_phi);
   treeDA->SetBranchAddress("ele2_full5x5_r9", &ele2_full5x5_r9);
-  // treeDA->SetBranchAddress("HLT_Ele35_WPLoose_Gsf_v1", &HLT_Ele35_WPLoose_Gsf_v1);
-  //treeDA->SetBranchAddress("HLT_Ele35_WPLoose_Gsf_v2", &HLT_Ele35_WPLoose_Gsf_v2);
-  //treeDA->SetBranchAddress("HLT_Ele35_WPLoose_Gsf_v3", &HLT_Ele35_WPLoose_Gsf_v3);
-  //treeDA->SetBranchAddress("HLT_Ele35_WPLoose_Gsf_v4", &HLT_Ele35_WPLoose_Gsf_v4);
-  //treeDA->SetBranchAddress("HLT_Ele35_WPLoose_Gsf_v5", &HLT_Ele35_WPLoose_Gsf_v5);
   treeDA->SetBranchAddress("HLT_Ele27_WPTight_Gsf_v1", &HLT_Ele27_WPTight_Gsf_v1);
   treeDA->SetBranchAddress("HLT_Ele27_WPTight_Gsf_v2", &HLT_Ele27_WPTight_Gsf_v2);
   treeDA->SetBranchAddress("HLT_Ele27_WPTight_Gsf_v3", &HLT_Ele27_WPTight_Gsf_v3);
@@ -238,12 +226,12 @@ int main(int argc, char** argv)
     if ( dphi > TMath::Pi() ) dphi = 2*TMath::Pi() - dphi;
 
     // selections
-    //if (applyHLT && !HLT_Ele35_WPLoose_Gsf_v1 && !HLT_Ele35_WPLoose_Gsf_v2 && !HLT_Ele35_WPLoose_Gsf_v3 && !HLT_Ele35_WPLoose_Gsf_v4 && !HLT_Ele35_WPLoose_Gsf_v5) continue;
     if (applyHLT && !HLT_Ele27_WPTight_Gsf_v1 && !HLT_Ele27_WPTight_Gsf_v2 && !HLT_Ele27_WPTight_Gsf_v3 && !HLT_Ele27_WPTight_Gsf_v4 && !HLT_Ele27_WPTight_Gsf_v5 && !HLT_Ele27_WPTight_Gsf_v6 && !HLT_Ele27_WPTight_Gsf_v7 ) continue;
     if (ele1_et < minEt1) continue;                                                         
     if (ele2_et < minEt2) continue;                                                         
     if ( dphi > maxDphi ) continue;
     if ( mass < minMass ) continue;
+    if ( mass > maxMass ) continue;
     
     // get photons categories
     int cat1 = photonCategory(ele1_scEta, ele1_full5x5_r9); 
@@ -273,7 +261,7 @@ int main(int argc, char** argv)
  }
 
   // define HT bins and book histograms
-  int nPoints = 10000;
+  int nPoints = 1000;
   vector<double> binEdges[4][4];
   int nHtBins[4][4] ;
   TH1F** h_Ht_MC[4][4];
@@ -287,14 +275,11 @@ int main(int argc, char** argv)
       
       if (h_Ht[i][j]->GetEntries()==0) continue;
     
-      //if ( (i>1 && j>1) || (i!=j) ){ // both in EE or mixed categories
-      //	nPoints = 3000;
-      //}
-      if ( i > 1 ){
-	nPoints = 3000;
+      if ( i > 1 || j > 1){
+	nPoints = 5000;
       }
       else{
-	 nPoints = 10000;
+	 nPoints = 20000;
       }
       
       defineBins( h_Ht[i][j], nPoints, binEdges[i][j], minEt2 );
@@ -313,8 +298,8 @@ int main(int argc, char** argv)
     }
   }
 
-  TH1F *hnvtxMC = new TH1F("hnvtxMC","Number of vertices", 30,0,30);
-  TH1F *hnvtxDA = new TH1F("hnvtxDA","Number of vertices", 30,0,30);
+  TH1F *hnvtxMC = new TH1F("hnvtxMC","Number of vertices", 50,0,50);
+  TH1F *hnvtxDA = new TH1F("hnvtxDA","Number of vertices", 50,0,50);
 
   float bins[12] = {0., 10., 20., 30., 40., 50., 70. , 100., 150. , 200., 500., 1000.};
   float binnum = sizeof(bins)/sizeof(float) - 1;
@@ -344,6 +329,7 @@ int main(int argc, char** argv)
     if (ele2_et < minEt2) continue;                                                         
     if ( dphi > maxDphi ) continue;
     if ( mass < minMass ) continue;
+    if ( mass > maxMass ) continue;
     
     // get photons categories
     int cat1 = photonCategory(ele1_scEta, ele1_full5x5_r9); 
@@ -409,6 +395,7 @@ int main(int argc, char** argv)
     if (ele2_et < minEt2) continue;                                                         
     if ( dphi > maxDphi ) continue;
     if ( mass < minMass ) continue;
+    if ( mass > maxMass ) continue;
     
     // get photons categories
     int cat1 = photonCategory(ele1_scEta, ele1_full5x5_r9); 
@@ -451,7 +438,7 @@ int main(int argc, char** argv)
   
   //scale data errors to take into account that MC stat is finite --> sum MC error to data
   if (scaleDataErrors){
-    double newerr, errDA, errMC, norm = 0;
+    double newerr, errDA, errMC, norm = 0.;
     for (int i = 0; i < 4; i++){
       for (int j = 0; j < 4; j++){
 	for (int htbin = 0; htbin < nHtBins[i][j]; htbin++){     

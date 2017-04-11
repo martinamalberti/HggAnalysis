@@ -44,7 +44,7 @@ ROOT.gStyle.SetOptFit(0111)
 ROOT.gStyle.SetFitFormat("5.4g")
 
 
-doFitPlots = False
+doFitPlots = True
 doHtPlots = False
 
 f = ROOT.TFile.Open("../linearityZee_2016_reminiAOD.root")
@@ -56,6 +56,8 @@ nl    = {}
 for i in range(0,4):
     for j in range(0,4):
 
+        #if ( i != j): continue
+        
         c = ROOT.TCanvas("linearity%d%d"%(i,j),"linearity_%d%d"%(i,j),800,700)
 
         g  = f.Get("g_cat%dcat%d"%(i,j))
@@ -209,7 +211,7 @@ if doFitPlots:
         c = ROOT.TCanvas(cname,cname,500,500)
         h.SetMarkerStyle(20)
         h.SetMarkerSize(0.8)
-        h.GetXaxis().SetRangeUser(0.5,1.5)
+        h.GetXaxis().SetRangeUser(0.8,1.2)
         h.GetXaxis().SetTitle("M_{ee}/M_{Z}")
         h.Draw("e1")
         

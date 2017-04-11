@@ -83,6 +83,8 @@ int main(int argc, char** argv)
   Float_t         ele1_full5x5_r9;
   Float_t         ele1_r9;
   Float_t         ele1_etaWidth;
+  Float_t         ele1_reco_E;
+  Float_t         ele1_reco_regr_E;
   Float_t         ele1_beforeShShTransf_regr_E;
   Float_t         ele1_afterShShTransf_regr_E;
   Float_t         ele2_et;
@@ -118,6 +120,8 @@ int main(int argc, char** argv)
   tree->SetBranchAddress("ele1_full5x5_r9", &ele1_full5x5_r9);
   tree->SetBranchAddress("ele1_r9", &ele1_r9);
   tree->SetBranchAddress("ele1_etaWidth", &ele1_etaWidth);
+  tree->SetBranchAddress("ele1_reco_E", &ele1_reco_E);
+  tree->SetBranchAddress("ele1_reco_regr_E", &ele1_reco_regr_E);
   tree->SetBranchAddress("ele1_beforeShShTransf_regr_E", &ele1_beforeShShTransf_regr_E);
   tree->SetBranchAddress("ele1_afterShShTransf_regr_E", &ele1_afterShShTransf_regr_E);
     
@@ -151,7 +155,7 @@ int main(int argc, char** argv)
   TH1F *hExtraSmearing_EE_HighEta_HR9 = new TH1F("hExtraSmearing_EE_HighEta_HR9","hExtraSmearing_EE_HighEta_HR9",100,-0.1,0.1);
   TH1F *hExtraSmearing_EE_HighEta_LR9 = new TH1F("hExtraSmearing_EE_HighEta_LR9","hExtraSmearing_EE_HighEta_LR9",100,-0.1,0.1);
 
-
+  TH1F *hDeltaErecoEregr = new TH1F("hDeltaErecoEregr","hDeltaErecoEregr",400,0.0,2.0);
   
   // mass ratio before/after shower shapes transf.
   TH1F *hmassRatio_EBEB        = new TH1F("hmassRatio_EBEB","hmassRatio_EBEB",500,0.975,1.025);
@@ -236,12 +240,16 @@ int main(int argc, char** argv)
 
     float regressionCorr1 = ele1_beforeShShTransf_regr_E/(ele1_rawEnergy+ele1_esEnergy);
     float regressionCorr2 = ele2_beforeShShTransf_regr_E/(ele2_rawEnergy+ele2_esEnergy);
-    
+
+    float dRecoERegrE = ele1_reco_E/ele1_reco_regr_E;
+      
     float deltaE1_smear = ele1_energy - ele1_beforeShShTransf_regr_E;
     float deltaE2_smear = ele2_energy - ele2_beforeShShTransf_regr_E;
     float dm = sqrt( (ele1_afterShShTransf_regr_E*ele2_afterShShTransf_regr_E) / (ele1_beforeShShTransf_regr_E*ele2_beforeShShTransf_regr_E) );
 
     // sanity check
+    hDeltaErecoEregr ->Fill(dRecoERegrE, w);
+      
     if ( ele1_full5x5_r9 > r9cut ) hExtraSmearings_vs_eta_highr9 ->Fill(fabs(ele1_scEta), deltaE1_smear/ele1_beforeShShTransf_regr_E, w);
     if ( ele2_full5x5_r9 > r9cut ) hExtraSmearings_vs_eta_highr9 ->Fill(fabs(ele2_scEta), deltaE2_smear/ele2_beforeShShTransf_regr_E, w);
     if ( ele1_full5x5_r9 < r9cut ) hExtraSmearings_vs_eta_lowr9 ->Fill(fabs(ele1_scEta), deltaE1_smear/ele1_beforeShShTransf_regr_E, w);
@@ -335,6 +343,8 @@ int main(int argc, char** argv)
   
   TFile *fout = new TFile(argv[2],"recreate");
 
+  hDeltaErecoEregr -> Write();
+  
   hExtraSmearings_vs_eta_highr9->Write();
   hExtraSmearings_vs_eta_lowr9->Write();
 
